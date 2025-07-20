@@ -59,12 +59,27 @@ export default function Calendar() {
 
   const days = getDaysInMonth(year,month);    // call the object array of days
 
+  // Function for btn to call previos month
+  const callPreviousMonth = () =>{
+    const previousMonth = new Date(year,month-1);
+    setCurrentDate(previousMonth);
+  }
+
+  
+  // Function for btn to call next month
+  const callNextMonth = () =>{
+    const nextMonth = new Date(year,month+1);
+    setCurrentDate(nextMonth);
+    // console.log(currentDate.getMonth());
+    
+  }
+
   return (
     <div className="calendar">
       <div className="calendar-header">
-        <button>← Previous</button>
+        <button onClick={callPreviousMonth}>← Previous</button>
         <h2>Month Year</h2>
-        <button>Next →</button>
+        <button onClick={callNextMonth}>Next →</button>
       </div>
       <div className="calendar-grid">
 
