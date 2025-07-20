@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Day from "./Day.jsx";
 import "../styles/calendar.css";
+import { isSameDay, parseISO } from 'date-fns';
 
 // use for getting the name of week days
 const daysOfWeek = [
@@ -51,7 +52,7 @@ function getDaysInMonth(year, month) {
   return days; // return the Array
 }
 
-export default function Calendar() {
+export default function Calendar({ events, onDateClick, onEventClick }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // There I get the current month and year
@@ -92,8 +93,22 @@ export default function Calendar() {
           </div>
         ))}
 
-        {days.map((day, index) => (
+        {/* {days.map((day, index) => (
           <Day key={index} date={day.date} isCurrentMonth={day.currentMonth} />
+        ))} */}
+
+
+        {days.map((day, index) => (
+          <Day
+            key={index}
+            date={day.date}
+            isCurrentMonth={day.currentMonth}
+            events={events.filter((event) =>
+              isSameDay(parseISO(event.start), day.date)
+            )}
+            onDateClick={onDateClick}
+            onEventClick={onEventClick}
+          />
         ))}
       </div>
     </div>
