@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import Day from './Day.jsx'
+import Day from "./Day.jsx";
+import "../styles/calendar.css";
 
 // use for getting the name of week days
 const daysOfWeek = [
@@ -47,7 +48,7 @@ function getDaysInMonth(year, month) {
     });
   }
 
-  return days;  // return the Array
+  return days; // return the Array
 }
 
 export default function Calendar() {
@@ -57,42 +58,43 @@ export default function Calendar() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const days = getDaysInMonth(year,month);    // call the object array of days
+  const days = getDaysInMonth(year, month); // call the object array of days
 
   // Function for btn to call previos month
-  const callPreviousMonth = () =>{
-    const previousMonth = new Date(year,month-1);
+  const callPreviousMonth = () => {
+    const previousMonth = new Date(year, month - 1);
     setCurrentDate(previousMonth);
-  }
+  };
 
-  
   // Function for btn to call next month
-  const callNextMonth = () =>{
-    const nextMonth = new Date(year,month+1);
+  const callNextMonth = () => {
+    const nextMonth = new Date(year, month + 1);
     setCurrentDate(nextMonth);
     // console.log(currentDate.getMonth());
-    
-  }
+  };
 
   return (
     <div className="calendar">
       <div className="calendar-header">
         <button onClick={callPreviousMonth}>← Previous</button>
-        <h2>Month Year</h2>
+        <h2>
+         {/* Used to display the current month name in the calendar header */}
+         {currentDate.toLocaleString("default", { month: "long" })+"  "} 
+          { year}
+        </h2>
         <button onClick={callNextMonth}>Next →</button>
       </div>
       <div className="calendar-grid">
-
         {/* Use this for get the week name */}
-        {daysOfWeek.map((day) => {
+        {daysOfWeek.map((day) => (
           <div key={day} className="day-name">
             {day}
-          </div>;
-        })}
+          </div>
+        ))}
 
-        {days.map((day, index)=>{
-          <Day key={index} date={day.date} isCurrentMonth={day.isCurrentMonth}/>
-        })}
+        {days.map((day, index) => (
+          <Day key={index} date={day.date} isCurrentMonth={day.currentMonth} />
+        ))}
       </div>
     </div>
   );

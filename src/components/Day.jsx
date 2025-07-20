@@ -1,14 +1,18 @@
-import React from 'react'
+import React from "react";
+import { isToday } from "date-fns";
 
+const Day = ({ date, isCurrentMonth }) => {
+  const today = isToday(date); // Highlight if today
 
-export default function Day() {
+  return (
+    <div
+      className={`day-cell ${!isCurrentMonth ? "not-current-month" : ""} ${
+        today ? "today-highlight" : ""
+      }`}
+    >
+      <div className="day-number">{date.getDate()}</div>
+    </div>
+  );
+};
 
-    // check the day is from current month or not
-    const Day = ({date,isCurrentMonth})=>{
-        return (
-            <div className={`day-box ${isCurrentMonth ? "current":"faded"}`}>
-                {date.getDate()}
-            </div>
-        )
-    }
-}
+export default Day;
