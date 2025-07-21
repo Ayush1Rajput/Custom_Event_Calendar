@@ -1,5 +1,6 @@
+// App.jsx
 import { useState } from "react";
-import { parse, format } from "date-fns";
+import { parse, format, isSameDay, isBefore, isAfter } from "date-fns";
 import Calendar from "./components/Calendar";
 import EventForm from "./components/EventForm";
 
@@ -45,16 +46,34 @@ function App() {
     setModalOpen(true);
   };
 
+  // Check if the new/updated event is conflicting with existing ones
+  const hasConflict = (newEvent) => {
+    return events.some((event) => {
+      if (event.id === newEvent.id) return false;
+
+      const existingStart = parse(event.start, "yyyy-MM-dd'T'HH:mm:ssXXX", new Date());
+      const existingEnd = event.end
+        ? parse(event.end, "yyyy-MM-dd'T'HH:mm:ssXXX", new Date())
+        : existingStart;
+
+      const newStart = parse(newEvent.start, "yyyy-MM-dd'T'HH:mm:ssXXX", new Date());
+      const newEnd = newEvent.end
+        ? parse(newEvent.end, "yyyy-MM-dd'T'HH:mm:ssXXX", new Date())
+        : newStart;
+
+      return (
+        (isBefore(newStart, existingEnd) && isAfter(newEnd, existingStart)) ||
+        isSameDay(existingStart, newStart)
+      );
+    });
+  };
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // Convert start and end datetime to ISO format
-    const startDate = parse(
-      formData.start,
-      "yyyy-MM-dd'T'HH:mm",
-      new Date()
-    ).toISOString();
+    const startDate = parse(formData.start, "yyyy-MM-dd'T'HH:mm", new Date()).toISOString();
     const endDate = formData.end
       ? parse(formData.end, "yyyy-MM-dd'T'HH:mm", new Date()).toISOString()
       : startDate;
@@ -69,11 +88,17 @@ function App() {
       backgroundColor: formData.color,
     };
 
+    if (hasConflict(newEvent)) {
+      alert("Event conflict detected! Choose a different time.");
+      return;
+    }
+
+    // Add or update event
     setEvents((prev) =>
-      currentEvent
-        ? prev.map((ev) => (ev.id === currentEvent.id ? newEvent : ev))
-        : [...prev, newEvent]
+      currentEvent ? prev.map((ev) => (ev.id === currentEvent.id ? newEvent : ev)) : [...prev, newEvent]
     );
+
+    // Reset modal and form
     setModalOpen(false);
     setFormData({
       title: "",
@@ -93,6 +118,40 @@ function App() {
     }
   };
 
+  // Handle drag-and-drop event
+  const handleEventDrop = (eventId, newDate) => {
+    setEvents((prevEvents) =>
+      prevEvents.map((ev) => {
+        if (ev.id === eventId) {
+          const startTime = new Date(ev.start);
+          const updatedStart = new Date(newDate);
+          updatedStart.setHours(startTime.getHours());
+          updatedStart.setMinutes(startTime.getMinutes());
+
+          const updatedEnd = ev.end ? new Date(ev.end) : null;
+          if (updatedEnd) {
+            const duration = new Date(ev.end) - new Date(ev.start);
+            updatedEnd.setTime(updatedStart.getTime() + duration);
+          }
+
+          const updatedEvent = {
+            ...ev,
+            start: updatedStart.toISOString(),
+            end: updatedEnd ? updatedEnd.toISOString() : undefined,
+          };
+
+          if (hasConflict(updatedEvent)) {
+            alert("Drop failed: Event conflict detected!");
+            return ev;
+          }
+
+          return updatedEvent;
+        }
+        return ev;
+      })
+    );
+  };
+
   return (
     <div>
       <h1 style={{ textAlign: "center" }}>Event Management Calendar</h1>
@@ -100,6 +159,7 @@ function App() {
         events={events}
         onDateClick={handleDateClick}
         onEventClick={handleEventClick}
+        onEventDrop={handleEventDrop}
       />
       <EventForm
         isOpen={modalOpen}
@@ -109,6 +169,8 @@ function App() {
         onSubmit={handleSubmit}
         onDelete={handleDelete}
         isEditing={!!currentEvent}
+        events={events}
+        currentEventId={currentEvent?.id || null}
       />
     </div>
   );

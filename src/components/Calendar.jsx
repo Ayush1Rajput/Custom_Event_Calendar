@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Day from "./Day.jsx";
 import "../styles/calendar.css";
-import { isSameDay, parseISO } from 'date-fns';
+import { isSameDay, parseISO } from "date-fns";
 import { RRule } from "rrule";
 
 // use for getting the name of week days
@@ -36,7 +36,6 @@ function getDaysInMonth(year, month) {
       date: new Date(date),
       currentMonth: true,
     });
-
     date.setDate(date.getDate() + 1);
   }
 
@@ -92,7 +91,6 @@ function getOccurrences(events, rangeStart, rangeEnd) {
           expanded.push({ ...event, start: date.toISOString() });
         }
       });
-
     } else {
       expanded.push(event);
     }
@@ -101,7 +99,7 @@ function getOccurrences(events, rangeStart, rangeEnd) {
   return expanded;
 }
 
-export default function Calendar({ events, onDateClick, onEventClick }) {
+export default function Calendar({ events, onDateClick, onEventClick, onEventDrop }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // There I get the current month and year
@@ -127,32 +125,25 @@ export default function Calendar({ events, onDateClick, onEventClick }) {
     setCurrentDate(nextMonth);
     // console.log(currentDate.getMonth());
   };
-  
 
   return (
     <div className="calendar">
       <div className="calendar-header">
         <button onClick={callPreviousMonth}>← Previous</button>
         <h2>
-         {/* Used to display the current month name in the calendar header */}
-         {currentDate.toLocaleString("default", { month: "long" })+"  "} 
-          { year}
+          {/* Used to display the current month name in the calendar header */}
+          {currentDate.toLocaleString("default", { month: "long" }) + "  "}
+          {year}
         </h2>
         <button onClick={callNextMonth}>Next →</button>
       </div>
       <div className="calendar-grid">
-        
         {/* Use this for get the week name */}
         {daysOfWeek.map((day) => (
           <div key={day} className="day-name">
             {day}
           </div>
         ))}
-
-        {/* {days.map((day, index) => (
-          <Day key={index} date={day.date} isCurrentMonth={day.currentMonth} />
-        ))} */}
-
 
         {days.map((day, index) => (
           <Day
@@ -164,6 +155,7 @@ export default function Calendar({ events, onDateClick, onEventClick }) {
             )}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventDrop={onEventDrop}
           />
         ))}
       </div>
