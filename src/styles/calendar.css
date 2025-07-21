@@ -1,84 +1,91 @@
 .calendar {
-  width: 100%;
-  max-width: 900px;
-  /* height: 80vh; */
-  margin: 2rem auto;
+  max-width: 1000px;
+  margin: 0 auto;
   padding: 1rem;
-  font-family: sans-serif;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .calendar-header h2 {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
+.calendar-header button {
+  padding: 6px 12px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calendar-header button:hover {
+  background-color: #4338ca;
+}
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 4px;
 }
 
 .day-name {
-  text-align: center;
   font-weight: bold;
-  padding: 0.5rem 0;
-  color: #040911;
-  background-color: #f0f4f8;
+  text-align: center;
+  padding: 8px 0;
+  background-color: #f3f4f6;
   border-radius: 4px;
 }
 
-.day-cell {
-  position: relative;
+.day {
   min-height: 100px;
-  padding: 8px;
-  background-color: white;
-  border: 1px solid #ddd;
+  padding: 6px;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
 }
 
-.day-cell:hover {
-  background-color: #bad5f1;
-  color: black;
-}
-.day-number {
-  position: absolute;
-  top: 6px;
-  right: 10px;
-  font-size: 14px;
-  font-weight: bold;
+.day:hover {
+  background-color: #f0f9ff;
 }
 
-.not-current-month {
+.other-month {
   background-color: #f9fafb;
-  color: #aaa;
+  color: #9ca3af;
+}
+.day.is-today {
+  border: 2px solid #3b82f6;
 }
 
-.today-highlight {
-  background-color: #74a5f5;
+.day > div:first-child {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.event {
+  background-color: #6366f1;
   color: white;
-  font-weight: bold;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-button{
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-button:hover{
-  background-color: rgb(26, 226, 119);
+.event:hover {
+  transform: scale(1.02);
+  background-color: #4f46e5;
 }

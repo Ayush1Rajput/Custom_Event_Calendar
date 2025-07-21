@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Day from "./Day.jsx";
 import "../styles/calendar.css";
 import { isSameDay, parseISO } from 'date-fns';
+import { RRule } from "rrule";
 
 // use for getting the name of week days
 const daysOfWeek = [
@@ -52,6 +53,54 @@ function getDaysInMonth(year, month) {
   return days; // return the Array
 }
 
+// Function to expand recurring events using rrule
+function getOccurrences(events, rangeStart, rangeEnd) {
+  const expanded = [];
+
+  for (const event of events) {
+    if (event.recurrence && event.recurrence !== "none") {
+      const start = new Date(event.start);
+      const recurrenceEnd = event.recurrenceEnd
+        ? new Date(event.recurrenceEnd)
+        : new Date(rangeEnd);
+
+      const options = {
+        dtstart: start,
+        until: recurrenceEnd,
+      };
+
+      switch (event.recurrence) {
+        case "daily":
+          options.freq = RRule.DAILY;
+          break;
+        case "weekly":
+          options.freq = RRule.WEEKLY;
+          break;
+        case "monthly":
+          options.freq = RRule.MONTHLY;
+          break;
+        default:
+          continue;
+      }
+
+      const rule = new RRule(options);
+      const allDates = rule.all();
+
+      // Only include dates within current calendar month range
+      allDates.forEach((date) => {
+        if (date >= rangeStart && date <= rangeEnd) {
+          expanded.push({ ...event, start: date.toISOString() });
+        }
+      });
+
+    } else {
+      expanded.push(event);
+    }
+  }
+
+  return expanded;
+}
+
 export default function Calendar({ events, onDateClick, onEventClick }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -60,6 +109,11 @@ export default function Calendar({ events, onDateClick, onEventClick }) {
   const month = currentDate.getMonth();
 
   const days = getDaysInMonth(year, month); // call the object array of days
+
+  // Define the visible range to generate recurring events within it
+  const rangeStart = new Date(year, month, 1);
+  const rangeEnd = new Date(year, month + 1, 0);
+  const expandedEvents = getOccurrences(events, rangeStart, rangeEnd);
 
   // Function for btn to call previos month
   const callPreviousMonth = () => {
@@ -73,6 +127,7 @@ export default function Calendar({ events, onDateClick, onEventClick }) {
     setCurrentDate(nextMonth);
     // console.log(currentDate.getMonth());
   };
+  
 
   return (
     <div className="calendar">
@@ -86,6 +141,7 @@ export default function Calendar({ events, onDateClick, onEventClick }) {
         <button onClick={callNextMonth}>Next →</button>
       </div>
       <div className="calendar-grid">
+        
         {/* Use this for get the week name */}
         {daysOfWeek.map((day) => (
           <div key={day} className="day-name">
@@ -103,7 +159,7 @@ export default function Calendar({ events, onDateClick, onEventClick }) {
             key={index}
             date={day.date}
             isCurrentMonth={day.currentMonth}
-            events={events.filter((event) =>
+            events={expandedEvents.filter((event) =>
               isSameDay(parseISO(event.start), day.date)
             )}
             onDateClick={onDateClick}
